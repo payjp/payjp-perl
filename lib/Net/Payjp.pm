@@ -123,7 +123,7 @@ sub cus_id{
 
 Create a new charge
 
-L<https://pay.readme.io/docs/charge-create>
+L<https://pay.jp/docs/api/#支払いを作成>
 
  my $card = {
    number => '4242424242424242',
@@ -142,7 +142,7 @@ L<https://pay.readme.io/docs/charge-create>
 
 Retrieve a charge
 
-L<https://pay.readme.io/docs/charge-retrieve>
+L<https://pay.jp/docs/api/#支払いを情報を取得>
 
  $payjp->charge->retrieve('ch_fa990a4c10672a93053a774730b0a');
 
@@ -150,7 +150,7 @@ L<https://pay.readme.io/docs/charge-retrieve>
 
 Update a charge
 
-L<https://pay.readme.io/docs/charge-update>
+L<https://pay.jp/docs/api/#支払いを情報を取得>
 
  $payjp->id('ch_fa990a4c10672a93053a774730b0a');
  $payjp->charge->save(description => 'update description.');
@@ -159,7 +159,7 @@ L<https://pay.readme.io/docs/charge-update>
 
 Refund a charge
 
-L<https://pay.readme.io/docs/charge-refund>
+L<https://pay.jp/docs/api/#返金する>
 
  $payjp->id('ch_fa990a4c10672a93053a774730b0a');
  $payjp->charge->refund(amount => 1000, refund_reason => 'test.');
@@ -168,7 +168,7 @@ L<https://pay.readme.io/docs/charge-refund>
 
 Capture a charge
 
-L<https://pay.readme.io/docs/charge-capture>
+L<https://pay.jp/docs/api/#支払い処理を確定する>
 
  $payjp->id('ch_fa990a4c10672a93053a774730b0a');
  $payjp->charge->capture(amount => 2000);
@@ -177,7 +177,7 @@ L<https://pay.readme.io/docs/charge-capture>
 
 Returns the charge list
 
-L<https://pay.readme.io/docs/charge-list>
+L<https://pay.jp/docs/api/#支払いリストを取得>
 
  $payjp->charge->all("limit" => 2, "offset" => 1);
 
@@ -187,7 +187,7 @@ L<https://pay.readme.io/docs/charge-list>
 
 Create a cumtomer
 
-L<https://pay.readme.io/docs/customer-create>
+L<https://pay.jp/docs/api/#顧客を作成>
 
  $payjp->customer->create(
    "description" => "test",
@@ -197,7 +197,7 @@ L<https://pay.readme.io/docs/customer-create>
 
 Retrieve a customer
 
-L<https://pay.readme.io/docs/customer-retrieve>
+L<https://pay.jp/docs/api/#顧客情報を取得>
 
  $payjp->customer->retrieve('cus_121673955bd7aa144de5a8f6c262');
 
@@ -205,7 +205,7 @@ L<https://pay.readme.io/docs/customer-retrieve>
 
 Update a customer
 
-L<https://pay.readme.io/docs/customer-update>
+L<https://pay.jp/docs/api/#顧客情報を更新>
 
  $payjp->id('cus_121673955bd7aa144de5a8f6c262');
  $payjp->customer->save(email => 'test@test.jp');
@@ -214,7 +214,7 @@ L<https://pay.readme.io/docs/customer-update>
 
 Delete a customer
 
-L<https://pay.readme.io/docs/customer-delete>
+L<https://pay.jp/docs/api/#顧客を削除>
 
  $payjp->id('cus_121673955bd7aa144de5a8f6c262');
  $payjp->customer->delete;
@@ -223,7 +223,7 @@ L<https://pay.readme.io/docs/customer-delete>
 
 Returns the customer list
 
-L<https://pay.readme.io/docs/customer-list>
+L<https://pay.jp/docs/api/#顧客リストを取得>
 
 $res = $payjp->customer->all(limit => 2, offset => 1);
 
@@ -244,7 +244,7 @@ Returns a customer's card object
 
 Create a customer's card
 
-L<https://pay.readme.io/docs/customer-card-create>
+L<https://pay.jp/docs/api/#顧客のカードを作成>
 
  $card->create(
    number => '4242424242424242',
@@ -256,7 +256,7 @@ L<https://pay.readme.io/docs/customer-card-create>
 
 Retrieve a customer's card
 
-L<https://pay.readme.io/docs/customer-card-retrieve>
+L<https://pay.jp/docs/api/#顧客のカード情報を取得>
 
  $card->retrieve('car_f7d9fa98594dc7c2e42bfcd641ff');
 
@@ -264,7 +264,7 @@ L<https://pay.readme.io/docs/customer-card-retrieve>
 
 Update a customer's card
 
-L<https://pay.readme.io/docs/customer-card-update>
+L<https://pay.jp/docs/api/#顧客のカードを更新>
 
 $card->id('car_f7d9fa98594dc7c2e42bfcd641ff');
 $card->save(exp_year => "2026", exp_month => "05", name => 'test');
@@ -273,7 +273,7 @@ $card->save(exp_year => "2026", exp_month => "05", name => 'test');
 
 Delete a customer's card
 
-L<https://pay.readme.io/docs/customer-card-delete>
+L<https://pay.jp/docs/api/#顧客のカードを削除>
 
  $card->id('car_f7d9fa98594dc7c2e42bfcd641ff');
  $card->delete;
@@ -282,7 +282,7 @@ L<https://pay.readme.io/docs/customer-card-delete>
 
 Returns the customer's card list
 
-L<https://pay.readme.io/docs/customer-card-list>
+L<https://pay.jp/docs/api/#顧客のカードリストを取得>
 
  $card->all(limit => 2, offset => 0);
 
@@ -296,7 +296,7 @@ Returns a customer's subscription object
 
 Retrieve a customer's subscription
 
-L<https://pay.readme.io/docs/customer-subscription-retrieve>
+L<https://pay.jp/docs/api/#顧客の定期課金情報を取得>
 
  $subscription->retrieve('sub_567a1e44562932ec1a7682d746e0');
 
@@ -304,7 +304,7 @@ L<https://pay.readme.io/docs/customer-subscription-retrieve>
 
 Returns the customer's subscription list
 
-L<https://pay.readme.io/docs/customer-subscription-list>
+L<https://pay.jp/docs/api/#顧客の定期課金リストを取得>
 
 $subscription->all(limit => 1, offset => 0);
 
@@ -321,7 +321,7 @@ sub customer{
 
 Create a plan
 
-L<https://pay.readme.io/docs/plan>
+L<https://pay.jp/docs/api/#プランを作成>
 
  $payjp->plan->create(
    amount => 500,
@@ -335,7 +335,7 @@ L<https://pay.readme.io/docs/plan>
 
 Retrieve a plan
 
-L<https://pay.readme.io/docs/plan-retrieve>
+L<https://pay.jp/docs/api/#プラン情報を取得>
 
  $payjp->plan->retrieve('pln_45dd3268a18b2837d52861716260');
 
@@ -343,7 +343,7 @@ L<https://pay.readme.io/docs/plan-retrieve>
 
 Update a plan
 
-L<https://pay.readme.io/docs/plan-update>
+L<https://pay.jp/docs/api/#プランを更新>
 
  $payjp->id('pln_45dd3268a18b2837d52861716260');
  $payjp->plan->save(name => 'NewPlan');
@@ -352,7 +352,7 @@ L<https://pay.readme.io/docs/plan-update>
 
 Delete a plan
 
-L<https://pay.readme.io/docs/plan-delete>
+L<https://pay.jp/docs/api/#プランを削除>
 
  $payjp->id('pln_45dd3268a18b2837d52861716260');
  $payjp->plan->delete;
@@ -361,7 +361,7 @@ L<https://pay.readme.io/docs/plan-delete>
 
 Returns the plan list
 
-L<https://pay.readme.io/docs/plan-list>
+L<https://pay.jp/docs/api/#プランリストを取得>
 
  $payjp->plan->all("limit" => 5, "offset" => 0);
 
@@ -378,7 +378,7 @@ sub plan{
 
 Create a subscription
 
-L<https://pay.readme.io/docs/subscription-create>
+L<https://pay.jp/docs/api/#定期課金を作成>
 
  $payjp->subscription->create(
    customer => 'cus_4df4b5ed720933f4fb9e28857517',
@@ -389,7 +389,7 @@ L<https://pay.readme.io/docs/subscription-create>
 
 Retrieve a subscription
 
-L<https://pay.readme.io/docs/subscription-retrieve>
+L<https://pay.jp/docs/api/#定期課金情報を取得>
 
  $payjp->subscription->retrieve('sub_567a1e44562932ec1a7682d746e0');
 
@@ -397,7 +397,7 @@ L<https://pay.readme.io/docs/subscription-retrieve>
 
 Update a subscription
 
-L<https://pay.readme.io/docs/subscription-update>
+L<https://pay.jp/docs/api/#定期課金を更新>
 
  $payjp->id('sub_567a1e44562932ec1a7682d746e0');
  $payjp->subscription->save;
@@ -406,7 +406,7 @@ L<https://pay.readme.io/docs/subscription-update>
 
 Pause a subscription
 
-L<https://pay.readme.io/docs/subscription-pause>
+L<https://pay.jp/docs/api/#定期課金を停止>
 
  $payjp->id('sub_567a1e44562932ec1a7682d746e0');
  $payjp->subscription->pause;
@@ -415,7 +415,7 @@ L<https://pay.readme.io/docs/subscription-pause>
 
 Resume a subscription
 
-L<https://pay.readme.io/docs/subscription-resume>
+L<https://pay.jp/docs/api/#定期課金を再開>
 
  $payjp->id('sub_567a1e44562932ec1a7682d746e0');
  $payjp->subscription->resume;
@@ -424,7 +424,7 @@ L<https://pay.readme.io/docs/subscription-resume>
 
 Cancel a subscription
 
-L<https://pay.readme.io/docs/subscription-cancel>
+L<https://pay.jp/docs/api/#定期課金をキャンセル>
 
  $payjp->id('sub_567a1e44562932ec1a7682d746e0');
  $payjp->subscription->cancel;
@@ -433,7 +433,7 @@ L<https://pay.readme.io/docs/subscription-cancel>
 
 Delete a subscription
 
-L<https://pay.readme.io/docs/subscription-delete>
+L<https://pay.jp/docs/api/#定期課金を削除>
 
  $payjp->id('sub_567a1e44562932ec1a7682d746e0');
  $payjp->subscription->delete;
@@ -442,7 +442,7 @@ L<https://pay.readme.io/docs/subscription-delete>
 
 Returns the subscription list
 
-L<https://pay.readme.io/docs/subscription-list>
+L<https://pay.jp/docs/api/#定期課金のリストを取得>
 
  $payjp->subscription->all(limit => 3, offset => 0);
 
@@ -459,7 +459,7 @@ sub subscription{
 
 Create a token
 
-L<https://pay.readme.io/docs/token-create>
+L<https://pay.jp/docs/api/#トークンを作成>
 
  my $card = {
    number => '4242424242424242',
@@ -475,7 +475,7 @@ L<https://pay.readme.io/docs/token-create>
 
 Retrieve a token
 
-L<https://pay.readme.io/docs/token-retrieve>
+L<https://pay.jp/docs/api/#トークン情報を取得>
 
 $payjp->token->retrieve('tok_eff34b780cbebd61e87f09ecc9c6');
 
@@ -492,7 +492,7 @@ sub token{
 
 Retrieve a transfer
 
-L<https://pay.readme.io/docs/transfer-retrieve>
+L<https://pay.jp/docs/api/#入金情報を取得>
 
  $payjp->transfer->retrieve('tr_8f0c0fe2c9f8a47f9d18f03959ba1');
 
@@ -500,7 +500,7 @@ L<https://pay.readme.io/docs/transfer-retrieve>
 
 Returns the transfer list
 
-L<https://pay.readme.io/docs/transfer-list>
+L<https://pay.jp/docs/api/#入金リストを取得>
 
  $payjp->transfer->all("limit" => 3, offset => 0);
 
@@ -508,7 +508,7 @@ L<https://pay.readme.io/docs/transfer-list>
 
 Returns the charge list
 
-L<https://pay.readme.io/docs/transfer-charge-list>
+L<https://pay.jp/docs/api/#入金の内訳を取得>
 
  $payjp->transfer->charges(
    limit => 3,
@@ -528,7 +528,7 @@ sub transfer{
 
 Retrieve a event
 
-L<https://pay.readme.io/docs/retrieve-event>
+L<https://pay.jp/docs/api/#イベント情報を取得>
 
  $res = $payjp->event->retrieve('evnt_2f7436fe0017098bc8d22221d1e');
 
@@ -536,7 +536,7 @@ L<https://pay.readme.io/docs/retrieve-event>
 
 Returns the event list
 
-L<https://pay.readme.io/docs/event-list>
+L<https://pay.jp/docs/api/#イベントリストを取得>
 
 $payjp->event->all(limit => 10, offset => 0);
 
@@ -553,7 +553,7 @@ sub event{
 
 Retrieve a account
 
-L<https://pay.readme.io/docs/account-retrieve>
+L<https://pay.jp/docs/api/#アカウント情報を取得>
 
  $payjp->account->retrieve;
 
