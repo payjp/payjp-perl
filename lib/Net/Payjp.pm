@@ -585,7 +585,7 @@ sub _request{
     }
   }
   elsif($method eq 'POST'){
-    if(keys $p{param}){
+    if(ref $p{param} eq 'Hash'){
       $req = POST($api_url, $self->_api_param(param => $p{param}));
     }
     else{
