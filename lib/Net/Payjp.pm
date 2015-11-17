@@ -67,7 +67,7 @@ This is required. You get this from your Payjp Account settings.
 
 =cut
 
-our $VERSION = '0.1.2';
+our $VERSION = '0.1.3';
 our $API_BASE = 'https://api.pay.jp';
 
 sub new{
@@ -585,7 +585,7 @@ sub _request{
     }
   }
   elsif($method eq 'POST'){
-    if(ref $p{param} eq 'Hash'){
+    if(ref $p{param} eq 'HASH'){
       $req = POST($api_url, $self->_api_param(param => $p{param}));
     }
     else{

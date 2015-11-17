@@ -2,7 +2,7 @@
 Net::Payjp
 
 # VERSION
-version 0.1.2
+version 0.1.3
 
 # SYNOPSIS
 ```
@@ -21,7 +21,7 @@ my $res = $payjp->charge->create(
   description => 'test charge',
 );
 if(my $e = $res->error){
-  print "Error;
+  print "Error";
   print $e->{message}."\n";
 }
 
