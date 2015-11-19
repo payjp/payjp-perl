@@ -400,7 +400,7 @@ Update a subscription
 L<https://pay.jp/docs/api/#定期課金を更新>
 
  $payjp->id('sub_567a1e44562932ec1a7682d746e0');
- $payjp->subscription->save;
+ $payjp->subscription->save(trial_end => 1473911903);
 
 =head2 pause
 
