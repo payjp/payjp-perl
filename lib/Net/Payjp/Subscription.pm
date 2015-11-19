@@ -10,7 +10,7 @@ sub pause{
   my $id = shift;
   $self->id($id) if $id;
 
-  $self->_request(method => 'POST', url => $self->_instance_url.'/pause', param => {});
+  $self->_request(method => 'POST', url => $self->_instance_url.'/pause');
 }
 
 sub resume{
@@ -18,7 +18,7 @@ sub resume{
   my $id = shift;
   $self->id($id) if $id;
 
-  $self->_request(method => 'POST', url => $self->_instance_url.'/resume', param => {});
+  $self->_request(method => 'POST', url => $self->_instance_url.'/resume');
 }
 
 sub cancel{
@@ -26,7 +26,7 @@ sub cancel{
   my $id = shift;
   $self->id($id) if $id;
 
-  $self->_request(method => 'POST', url => $self->_instance_url.'/cancel', param => {});
+  $self->_request(method => 'POST', url => $self->_instance_url.'/cancel');
 }
 
 1;

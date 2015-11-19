@@ -334,7 +334,7 @@ http://docs.pay.jp/docs/subscription-update
 
 ```
 $payjp->id('sub_567a1e44562932ec1a7682d746e0');
-$payjp->subscription->save(plan => 'pln_68e6a67f582462c223ca693bc549');
+$payjp->subscription->save(trial_end => 1473911903);
 ```
 
 ## pause
