@@ -18,8 +18,8 @@ isa_ok($payjp->plan, 'Net::Payjp::Plan');
 can_ok($payjp->plan, 'create');
 $res = $payjp->plan->create(
     amount           => 500,
-    currency         => "jpy",
-    interval         => "month",
+    currency         => 'jpy',
+    interval         => 'month',
     trial_days       => 30,
     name             => 'test_plan',
     'metadata[hoge]' => 'fuga'
@@ -67,6 +67,6 @@ ok($res->deleted, 'delete was successful');
 
 #List
 can_ok($payjp->plan, 'all');
-$res = $payjp->plan->all("limit" => 5, "offset" => 0);
+$res = $payjp->plan->all('limit' => 5, 'offset' => 0);
 is($res->object, 'list', 'got a list object back');
 

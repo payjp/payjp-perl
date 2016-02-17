@@ -37,8 +37,8 @@ use Net::Payjp::Object;
    description => 'test charge',
  );
  if(my $e = $res->error){
-   print "Error;
-   print $e->{message}."\n";
+   print 'Error';
+   print $e->{message}.'\n';
  }
  # Id of charge.
  print $res->id;
@@ -179,7 +179,7 @@ Returns the charge list
 
 L<https://pay.jp/docs/api/#支払いリストを取得>
 
- $payjp->charge->all("limit" => 2, "offset" => 1);
+ $payjp->charge->all('limit' => 2, 'offset' => 1);
 
 =head1 Customer Methods
 
@@ -190,7 +190,7 @@ Create a cumtomer
 L<https://pay.jp/docs/api/#顧客を作成>
 
  $payjp->customer->create(
-   "description" => "test",
+   'description' => 'test',
  );
 
 =head2 retrieve
@@ -267,7 +267,7 @@ Update a customer's card
 L<https://pay.jp/docs/api/#顧客のカードを更新>
 
 $card->id('car_f7d9fa98594dc7c2e42bfcd641ff');
-$card->save(exp_year => "2026", exp_month => "05", name => 'test');
+$card->save(exp_year => '2026', exp_month => '05', name => 'test');
 
 =head2 delete
 
@@ -325,8 +325,8 @@ L<https://pay.jp/docs/api/#プランを作成>
 
  $payjp->plan->create(
    amount => 500,
-   currency => "jpy",
-   interval => "month",
+   currency => 'jpy',
+   interval => 'month',
    trial_days => 30,
    name => 'test_plan'
  );
@@ -363,7 +363,7 @@ Returns the plan list
 
 L<https://pay.jp/docs/api/#プランリストを取得>
 
- $payjp->plan->all("limit" => 5, "offset" => 0);
+ $payjp->plan->all('limit' => 5, 'offset' => 0);
 
 =cut
 
@@ -463,9 +463,9 @@ L<https://pay.jp/docs/api/#トークンを作成>
 
  my $card = {
    number => '4242424242424242',
-   cvc => "1234",
-   exp_month => "02",
-   exp_year =>"2020"
+   cvc => '1234',
+   exp_month => '02',
+   exp_year =>'2020'
  };
  $payjp->token->create(
    card => $card,
@@ -502,7 +502,7 @@ Returns the transfer list
 
 L<https://pay.jp/docs/api/#入金リストを取得>
 
- $payjp->transfer->all("limit" => 3, offset => 0);
+ $payjp->transfer->all('limit' => 3, offset => 0);
 
 =head2 charges
 
@@ -576,9 +576,9 @@ sub _request{
     if($p{param}){
       my @param;
       foreach my $k(keys %{$p{param}}){
-        push(@param, "$k=".$p{param}->{$k});
+        push(@param, '$k='.$p{param}->{$k});
       }
-      $req = GET("$api_url?".join("&", @param));
+      $req = GET('$api_url?'.join('&', @param));
     }
     else{
       $req = GET($api_url);

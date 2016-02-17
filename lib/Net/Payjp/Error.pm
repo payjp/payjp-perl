@@ -7,12 +7,12 @@ use base 'Net::Payjp';
 
 sub _write{
   my $self = shift;
-  die shift."\n";
+  die shift.'\n';
 }
 
 sub _api_key{
   my $self = shift;
-  return 'api_key is required'."\n";
+  return 'api_key is required'.'\n';
 }
 
 sub _request{

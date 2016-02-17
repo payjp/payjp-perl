@@ -17,7 +17,7 @@ isa_ok($payjp->customer, 'Net::Payjp::Customer');
 #Create
 can_ok($payjp->customer, 'create');
 $res = $payjp->customer->create(
-    "description"    => "test description.",
+    'description'    => 'test description.',
     'metadata[hoge]' => 'fuga'
 );
 is($res->object, 'customer', 'got a customer object back');
@@ -69,7 +69,7 @@ is($res->object, 'list', 'got a list object back');
 
 #Create card
 $res = $payjp->customer->create(
-    "description" => "test card.",
+    'description' => 'test card.',
 );
 can_ok($payjp->customer, 'card');
 my $card = $payjp->customer->card($res->id);
@@ -95,8 +95,8 @@ is($res_card->metadata->{hoge}, 'fuga', 'got a card metadata');
 #Update card
 can_ok($card, 'save');
 $res_card = $card->save(
-    exp_year         => "2026",
-    exp_month        => "05",
+    exp_year         => '2026',
+    exp_month        => '05',
     name             => 'test',
     'metadata[hoge]' => 'piyo'
 );
@@ -107,8 +107,8 @@ is($res_card->metadata->{hoge}, 'piyo', 'got a card metadata');
 #Update card remove metadata
 can_ok($card, 'save');
 $res_card = $card->save(
-    exp_year         => "2026",
-    exp_month        => "05",
+    exp_year         => '2026',
+    exp_month        => '05',
     name             => 'test',
     'metadata[hoge]' => ''
 );
@@ -136,8 +136,8 @@ is($res_card->object, 'list', 'got a list object back');
 #Retrieve subscription
 my $pln_res = $payjp->plan->create(
     amount     => 500,
-    currency   => "jpy",
-    interval   => "month",
+    currency   => 'jpy',
+    interval   => 'month',
     trial_days => 30,
 );
 
