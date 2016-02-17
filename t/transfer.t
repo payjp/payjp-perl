@@ -16,7 +16,7 @@ isa_ok($payjp->transfer, 'Net::Payjp::Transfer');
 
 #List
 can_ok($payjp->transfer, 'all');
-$res = $payjp->transfer->all("limit" => 3, offset => 0);
+$res = $payjp->transfer->all(limit => 3, offset => 0);
 is($res->object, 'list', 'got a list object back');
 
 

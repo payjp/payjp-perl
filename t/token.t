@@ -17,9 +17,9 @@ isa_ok($payjp->token, 'Net::Payjp::Token');
 #Create
 my $card = {
     number    => '4242424242424242',
-    cvc       => "1234",
-    exp_month => "02",
-    exp_year  => "2020"
+    cvc       => '1234',
+    exp_month => '02',
+    exp_year  => '2020'
 };
 can_ok($payjp->token, 'create');
 $res = $payjp->token->create(
