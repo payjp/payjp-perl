@@ -17,7 +17,7 @@ isa_ok($payjp->customer, 'Net::Payjp::Customer');
 #Create
 can_ok($payjp->customer, 'create');
 $res = $payjp->customer->create(
-    'description'    => 'test description.',
+    description      => 'test description.',
     'metadata[hoge]' => 'fuga'
 );
 is($res->object, 'customer', 'got a customer object back');
@@ -69,7 +69,7 @@ is($res->object, 'list', 'got a list object back');
 
 #Create card
 $res = $payjp->customer->create(
-    'description' => 'test card.',
+    description => 'test card.',
 );
 can_ok($payjp->customer, 'card');
 my $card = $payjp->customer->card($res->id);

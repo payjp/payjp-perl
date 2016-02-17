@@ -67,6 +67,6 @@ ok($res->deleted, 'delete was successful');
 
 #List
 can_ok($payjp->plan, 'all');
-$res = $payjp->plan->all('limit' => 5, 'offset' => 0);
+$res = $payjp->plan->all(limit => 5, offset => 0);
 is($res->object, 'list', 'got a list object back');
 

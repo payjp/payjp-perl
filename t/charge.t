@@ -84,7 +84,7 @@ is($res->object, 'charge', 'got a charge object back');
 
 #List
 can_ok($payjp->charge, 'all');
-$res = $payjp->charge->all('limit' => 2, 'offset' => 0);
+$res = $payjp->charge->all(limit => 2, offset => 0);
 is($res->object, 'list', 'got a list object back');
 
 

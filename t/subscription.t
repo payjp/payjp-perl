@@ -16,7 +16,7 @@ isa_ok($payjp->subscription, 'Net::Payjp::Subscription');
 
 #Create
 my $cus_res = $payjp->customer->create(
-    'description' => 'test description.',
+    description => 'test description.',
 );
 my $card = $payjp->customer->card($cus_res->id);
 my $card_res = $card->create(
