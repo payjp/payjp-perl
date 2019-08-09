@@ -24,14 +24,8 @@ use Net::Payjp::Object;
 
  # Create charge
  my $payjp = Net::Payjp->new(api_key => $API_KEY);
- my $card = {
-   number => '4242424242424242',
-   exp_month => '02',
-   exp_year => '2020',
-   address_zip => '2020014'
- };
  my $res = $payjp->charge->create(
-   card => $card,
+   card => 'token_id_by_Checkout_or_payjp.js',
    amount => 3500,
    currency => 'jpy',
    description => 'test charge',
@@ -125,14 +119,8 @@ Create a new charge
 
 L<https://pay.jp/docs/api/#支払いを作成>
 
- my $card = {
-   number => '4242424242424242',
-   exp_month => '02',
-   exp_year => '2020',
-   address_zip => '2020014'
- };
  $payjp->charge->create(
-   card => $card,
+   card => 'tok_76e202b409f3da51a0706605ac81',
    amount => 3500,
    currency => 'jpy',
    description => 'yakiimo',
@@ -247,9 +235,7 @@ Create a customer's card
 L<https://pay.jp/docs/api/#顧客のカードを作成>
 
  $card->create(
-   number => '4242424242424242',
-   exp_year => '2020',
-   exp_month => '02'
+   card => 'tok_76e202b409f3da51a0706605ac81'
  );
 
 =head2 retrieve
@@ -454,22 +440,6 @@ sub subscription{
 }
 
 =head1 Token Methods
-
-=head2 create
-
-Create a token
-
-L<https://pay.jp/docs/api/#トークンを作成>
-
- my $card = {
-   number => '4242424242424242',
-   cvc => "1234",
-   exp_month => "02",
-   exp_year =>"2020"
- };
- $payjp->token->create(
-   card => $card,
- );
 
 =head2 retrieve
 
