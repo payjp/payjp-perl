@@ -5,17 +5,14 @@ Net::Payjp
 version 0.1.4
 
 # SYNOPSIS
-```
+
+In advance, you need to get a token by [Checkout](https://pay.jp/docs/checkout) or [payjp.js](https://pay.jp/docs/payjs).
+
+```perl
 # Create charge
 my $payjp = Net::Payjp->new(api_key => $API_KEY);
-my $card = {
-  number => '4242424242424242',
-  exp_month => '02',
-  exp_year => '2020',
-  address_zip => '2020014'
-};
 my $res = $payjp->charge->create(
-  card => $card,
+  card => 'token_id_by_Checkout_or_payjp-js',
   amount => 3500,
   currency => 'jpy',
   description => 'test charge',
@@ -29,6 +26,7 @@ if(my $e = $res->error){
 $payjp->id($res->id); # Set id of charge
 $res = $payjp->charge->retrieve; # or $payjp->charge->retrieve($res->id);
 ```
+
 # DESCRIPTION
 This module is a wrapper around the Pay.jp HTTP API.Methods are generally named after the object name and the acquisition method.
 
@@ -56,14 +54,8 @@ Create a new charge
 http://docs.pay.jp/docs/charge-create
 
 ```
-my $card = {
-  number => '4242424242424242',
-  exp_month => '02',
-  exp_year => '2020',
-  address_zip => '2020014'
-};
 $payjp->charge->create(
-  card => $card,
+  card => 'token_id_by_Checkout_or_payjp-js',
   amount => 3500,
   currency => 'jpy',
   description => 'yakiimo',
@@ -387,23 +379,6 @@ $payjp->subscription->all(limit => 3, offset => 0);
 ```
 
 # Token Methods
-## create
-Create a token
-
-http://docs.pay.jp/docs/token-create
-
-```
-my $card = {
-  number => '4242424242424242',
-  cvc => "1234",
-  exp_month => "02",
-  exp_year =>"2020"
-};
-$payjp->token->create(
-  card => $card,
-);
-```
-
 ## retrieve
 Retrieve a token
 
@@ -493,7 +468,6 @@ ver.10 or higher is required
 
 # SEE ALSO
 - http://docs.pay.jp
-- https://github.com/payjp/user-docs
 
 # AUTHORS
 BASE, Inc.
