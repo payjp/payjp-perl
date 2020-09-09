@@ -61,7 +61,7 @@ This is required. You get this from your Payjp Account settings.
 
 =cut
 
-our $VERSION = '0.1.5';
+our $VERSION = '0.1.4';
 our $API_BASE = 'https://api.pay.jp';
 
 sub new{

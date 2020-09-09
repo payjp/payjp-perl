@@ -1,11 +1,7 @@
 # Net::Payjp
-## VERSION
-
-version 0.1.5
-
 # Perl version
 
-ver.10 or higher is required
+5.10 or higher is required
 
 # SYNOPSIS
 
