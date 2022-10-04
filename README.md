@@ -62,6 +62,7 @@ cpan> install LWP::Protocol::https
 cpan> install HTTP::Request::Common
 cpan> install JSON
 cpan> install Test::More
+cpan> install Test::Mock::LWP
 ```
 
 ## Test

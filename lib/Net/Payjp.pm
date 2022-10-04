@@ -219,7 +219,7 @@ $res = $payjp->customer->all(limit => 2, offset => 1);
 
 sub charge{
   my $self = shift;
-  my $class = Net::Payjp::Charge->new(api_key => $self->api_key, id => $self->id);
+  Net::Payjp::Charge->new(api_key => $self->api_key, id => $self->id);
 }
 
 =head1 Cutomer card Methods
@@ -298,7 +298,7 @@ $subscription->all(limit => 1, offset => 0);
 
 sub customer{
   my $self = shift;
-  my $class = Net::Payjp::Customer->new(api_key => $self->api_key, id => $self->id);
+  Net::Payjp::Customer->new(api_key => $self->api_key, id => $self->id);
 }
 
 =head1 Plan Methods
@@ -542,32 +542,28 @@ sub _request{
   my $method = $p{method} || 'GET';
 
   my $req;
+  my $with_param;
+  if(ref $p{param} eq 'HASH' and keys %{$p{param}} > 0) {
+    $with_param = 1;
+  }
   if($method eq 'GET'){
-    if($p{param}){
+    if($with_param){
       my @param;
       foreach my $k(keys %{$p{param}}){
         push(@param, "$k=".$p{param}->{$k});
       }
-      $req = GET("$api_url?".join("&", @param));
+      $api_url .= '?'.join("&", @param);
     }
-    else{
-      $req = GET($api_url);
-    }
+    $req = GET($api_url);
   }
-  elsif($method eq 'POST'){
-    if(ref $p{param} eq 'HASH'){
-      $req = POST($api_url, $self->_api_param(param => $p{param}));
-    }
-    else{
-      $req = new HTTP::Request POST => $api_url;
-    }
+  elsif($method eq 'POST' and $with_param){
+    $req = POST($api_url, $self->_api_param(param => $p{param}));
   }
-  elsif($method eq 'DELETE'){
-    $req = new HTTP::Request(DELETE => $api_url);
+  else {
+    $req = new HTTP::Request $method => $api_url;
   }
 
   $req->authorization_basic($self->api_key, '');
-
   my $ua = LWP::UserAgent->new();
   $ua->timeout(30);
   my $client = {
@@ -591,21 +587,14 @@ sub _request{
   elsif($res->code =~ /^4/){
     return $self->_to_object(JSON->new->decode($res->content));
   }
-  else{
-    if($res->content =~ /status_code/){
-       return $self->_to_object(JSON->new->decode($res->content));
+  return $self->_to_object(
+    {
+      error => {
+        message => $res->message,
+        status_code => $res->code,
+      }
     }
-    else{
-      return $self->_to_object(
-        {
-          error => {
-            message => $res->message,
-            status_code => $res->code,
-          }
-        }
-      );
-    }
-  }
+  );
 }
 
 sub _to_object{

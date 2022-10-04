@@ -33,7 +33,6 @@ sub save{
 
 sub delete{
   my $self = shift;
-  my %p = @_;
 
   $self->_request(method => 'DELETE', url => $self->_instance_url.'/'.$self->id);
 }
