@@ -3,100 +3,87 @@
 use strict;
 use warnings;
 
+use Test::Mock::LWP;
+use Test::More tests => 33;
+
 use Net::Payjp;
-#use Test::More tests => 23;
-use Test::More skip_all => 'avoid real request';
 
-my $api_key = 'sk_test_c62fade9d045b54cd76d7036';
-my $payjp = Net::Payjp->new(api_key => $api_key);
-my $res;
-
+my $payjp = Net::Payjp->new(api_key => 'api_key');
 isa_ok($payjp->subscription, 'Net::Payjp::Subscription');
+can_ok($payjp->subscription, qw(retrieve create all save delete pause cancel resume));
 
+$Mock_resp->mock( content => sub { '{"id":"res1"}' } );
+$Mock_resp->mock( code => sub {200}  );
+$Mock_ua->mock( timeout => sub {} );
+$Mock_ua->mock( default_header => sub {}  );
 
 #Create
-my $cus_res = $payjp->customer->create(
-    description => 'test description.',
+my $subscription = $payjp->subscription;
+my $res = $subscription->create(
+    customer         => 'cus_id',
+    plan             => 'pl_id',
 );
-my $card = $payjp->customer->card($cus_res->id);
-my $card_res = $card->create(
-    number           => '4242424242424242',
-    exp_year         => '2020',
-    exp_month        => '02',
-    'metadata[hoge]' => 'fuga'
-);
-my $pln_res = $payjp->plan->create(
-    amount     => 500,
-    currency   => 'jpy',
-    interval   => 'month',
-    trial_days => 30,
-);
-
-can_ok($payjp->subscription, 'create');
-$res = $payjp->subscription->create(
-    customer         => $cus_res->id,
-    plan             => $pln_res->id,
-    'metadata[hoge]' => 'fuga'
-);
-is($res->object, 'subscription', 'got a subscription object back');
-is($res->metadata->{hoge}, 'fuga', 'got a subscription metadata');
-
-
-#Set sub_id.
-$payjp->id($res->id);
-
+is($Mock_req->{new_args}[1], 'POST');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/subscriptions');
+is($res->id, 'res1');
+is($subscription->id, 'res1');
 
 #retrieve
-can_ok($payjp->subscription, 'retrieve');
-$res = $payjp->subscription->retrieve;
-is($res->object, 'subscription', 'got a subscription object back');
-is($res->metadata->{hoge}, 'fuga', 'got a subscription metadata');
+$payjp->subscription->retrieve;
+is($Mock_req->{new_args}[1], 'GET');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/subscriptions/');
 
+$subscription->retrieve;
+is($Mock_req->{new_args}[1], 'GET');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/subscriptions/res1');
 
 #Update
-can_ok($payjp->subscription, 'save');
-$res = $payjp->subscription->save(
-    'metadata[hoge]' => 'piyo'
-);
-is($res->object, 'subscription', 'got a subscription object back');
-is($res->metadata->{hoge}, 'piyo', 'got a subscription metadata');
-
-
-#Update remove metadata
-can_ok($payjp->subscription, 'save');
-$res = $payjp->subscription->save(
-    'metadata[hoge]' => ''
-);
-is($res->object, 'subscription', 'got a subscription object back');
-is_deeply($res->metadata, { }, 'got a subscription metadata');
-
+$subscription->save();
+is($Mock_req->{new_args}[1], 'POST');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/subscriptions/res1');
 
 #Pause
-can_ok($payjp->subscription, 'pause');
-$res = $payjp->subscription->pause;
-is($res->object, 'subscription', 'got a subscription object back');
+$Mock_resp->mock( content => sub { '{"object":"subscription"}' } );
+$subscription->pause;
+is($Mock_req->{new_args}[1], 'POST');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/subscriptions/res1/pause');
 
+$subscription->pause('req1');
+is($Mock_req->{new_args}[1], 'POST');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/subscriptions/req1/pause');
+is($subscription->id, 'req1');
 
 #Resume
-can_ok($payjp->subscription, 'resume');
-$res = $payjp->subscription->resume;
-is($res->object, 'subscription', 'got a subscription object back');
+$subscription->resume;
+is($Mock_req->{new_args}[1], 'POST');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/subscriptions/req1/resume');
 
+$subscription->resume('req2');
+is($Mock_req->{new_args}[1], 'POST');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/subscriptions/req2/resume');
+is($subscription->id, 'req2');
 
 #Cancel
-can_ok($payjp->subscription, 'cancel');
-$res = $payjp->subscription->cancel;
-is($res->object, 'subscription', 'got a subscription object back');
+$subscription->cancel;
+is($Mock_req->{new_args}[1], 'POST');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/subscriptions/req2/cancel');
 
+$subscription->cancel('req3');
+is($Mock_req->{new_args}[1], 'POST');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/subscriptions/req3/cancel');
+is($subscription->id, 'req3');
 
 #Delete
-can_ok($payjp->subscription, 'delete');
-$res = $payjp->subscription->delete;
-ok($res->deleted, 'delete was successful');
+$subscription->delete;
+is($Mock_req->{new_args}[1], 'DELETE');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/subscriptions/req3');
 
+$subscription->delete(prorate => 'true');
+is($Mock_req->{new_args}[1], 'DELETE');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/subscriptions/req3?prorate=true');
 
 #List
-can_ok($payjp->subscription, 'all');
-$res = $payjp->subscription->all(limit => 3, offset => 0);
-is($res->object, 'list', 'got a list object back');
+$payjp->subscription->all(limit => 3);
+is($Mock_req->{new_args}[1], 'GET');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/subscriptions?limit=3');
 

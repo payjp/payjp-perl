@@ -4,12 +4,14 @@ use strict;
 use warnings;
 
 use Test::Mock::LWP;
-use Test::More tests => 12;
+use Test::More tests => 15;
 
 use Net::Payjp;
 
 my $payjp = Net::Payjp->new(api_key => 'api_key');
-$payjp->id('req1');
+isa_ok($payjp->charge, 'Net::Payjp::Charge');
+can_ok($payjp->charge, qw(retrieve create all save refund capture reauth tds_finish));
+ok(!$payjp->event->can('delete'));
 
 $Mock_resp->mock( content => sub { '{"id":"res1"}' } );
 $Mock_resp->mock( code => sub {200}  );
@@ -20,6 +22,7 @@ $Mock_req->mock( content => sub {
     my $p = $_[1];
     is($p, 'refund_reason=reason1');
 } );
+$payjp->id('req1');
 my $res = $payjp->charge->refund(refund_reason => 'reason1');
 is($Mock_req->{new_args}[1], 'POST');
 is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/charges/req1/refund');
@@ -38,10 +41,6 @@ $payjp->charge->reauth();
 is($Mock_req->{new_args}[1], 'POST');
 is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/charges/req1/reauth');
 
-$Mock_req->mock( content => sub {
-    my $p = $_[1];
-    is($p, '呼び出されない');
-} );
-$payjp->charge->tds_finish();
+$payjp->charge->tds_finish;
 is($Mock_req->{new_args}[1], 'POST');
 is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/charges/req1/tds_finish');

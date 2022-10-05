@@ -16,6 +16,8 @@ use Net::Payjp::Subscription;
 use Net::Payjp::Token;
 use Net::Payjp::Transfer;
 use Net::Payjp::Event;
+use Net::Payjp::Tenant;
+use Net::Payjp::TenantTransfer;
 use Net::Payjp::Object;
 
 # ABSTRACT: API client for pay.jp
@@ -61,7 +63,7 @@ This is required. You get this from your Payjp Account settings.
 
 =cut
 
-our $VERSION = '0.1.4';
+our $VERSION = '0.2.0';
 our $API_BASE = 'https://api.pay.jp';
 
 sub new{
@@ -75,7 +77,6 @@ sub _init{
   return(
     api_key => $p{api_key},
     id => $p{id},
-    cus_id => $p{cus_id},
     version => $VERSION,
     api_base => $API_BASE,
   );
@@ -103,12 +104,6 @@ sub id{
   my $self = shift;
   $self->{id} = shift if @_;
   return $self->{id};
-}
-
-sub cus_id{
-  my $self = shift;
-  $self->{cus_id} = shift if @_;
-  return $self->{cus_id};
 }
 
 =head1 Charge Methods
@@ -219,7 +214,7 @@ $res = $payjp->customer->all(limit => 2, offset => 1);
 
 sub charge{
   my $self = shift;
-  Net::Payjp::Charge->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Charge->new(api_key => $self->api_key, id => $self->id);
 }
 
 =head1 Cutomer card Methods
@@ -298,7 +293,7 @@ $subscription->all(limit => 1, offset => 0);
 
 sub customer{
   my $self = shift;
-  Net::Payjp::Customer->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Customer->new(api_key => $self->api_key, id => $self->id);
 }
 
 =head1 Plan Methods
@@ -355,7 +350,7 @@ L<https://pay.jp/docs/api/#プランリストを取得>
 
 sub plan{
   my $self = shift;
-  my $class = Net::Payjp::Plan->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Plan->new(api_key => $self->api_key, id => $self->id);
 }
 
 =head1 Subscription Methods
@@ -436,7 +431,7 @@ L<https://pay.jp/docs/api/#定期課金のリストを取得>
 
 sub subscription{
   my $self = shift;
-  my $class = Net::Payjp::Subscription->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Subscription->new(api_key => $self->api_key, id => $self->id);
 }
 
 =head1 Token Methods
@@ -453,7 +448,7 @@ $payjp->token->retrieve('tok_eff34b780cbebd61e87f09ecc9c6');
 
 sub token{
   my $self = shift;
-  my $class = Net::Payjp::Token->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Token->new(api_key => $self->api_key, id => $self->id);
 }
 
 =head1 Transfer Methods
@@ -489,7 +484,7 @@ L<https://pay.jp/docs/api/#入金の内訳を取得>
 
 sub transfer{
   my $self = shift;
-  my $class = Net::Payjp::Transfer->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Transfer->new(api_key => $self->api_key, id => $self->id);
 }
 
 =head1 Event Methods
@@ -514,7 +509,7 @@ $payjp->event->all(limit => 10, offset => 0);
 
 sub event{
   my $self = shift;
-  my $class = Net::Payjp::Event->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Event->new(api_key => $self->api_key, id => $self->id);
 }
 
 =head1 Account Methods
@@ -531,7 +526,17 @@ L<https://pay.jp/docs/api/#アカウント情報を取得>
 
 sub account{
   my $self = shift;
-  my $class = Net::Payjp::Account->new(api_key => $self->api_key);
+  return Net::Payjp::Account->new(api_key => $self->api_key);
+}
+
+sub tenant{
+  my $self = shift;
+  return Net::Payjp::Tenant->new(api_key => $self->api_key, id => $self->id);
+}
+
+sub tenant_transfer{
+  my $self = shift;
+  return Net::Payjp::TenantTransfer->new(api_key => $self->api_key, id => $self->id);
 }
 
 sub _request{
@@ -546,20 +551,16 @@ sub _request{
   if(ref $p{param} eq 'HASH' and keys %{$p{param}} > 0) {
     $with_param = 1;
   }
-  if($method eq 'GET'){
-    if($with_param){
-      my @param;
-      foreach my $k(keys %{$p{param}}){
-        push(@param, "$k=".$p{param}->{$k});
-      }
-      $api_url .= '?'.join("&", @param);
+  if($with_param and ($method eq 'GET' or $method eq 'DELETE')){
+    my @param;
+    foreach my $k(keys %{$p{param}}){
+      push(@param, "$k=".$p{param}->{$k});
     }
-    $req = GET($api_url);
+    $api_url .= '?'.join("&", @param);
   }
-  elsif($method eq 'POST' and $with_param){
+  if($method eq 'POST' and $with_param){
     $req = POST($api_url, $self->_api_param(param => $p{param}));
-  }
-  else {
+  } else {
     $req = new HTTP::Request $method => $api_url;
   }
 
@@ -621,6 +622,17 @@ sub _api_param{
     }
   }
   return $req_param;
+}
+
+sub _instance_url{
+  my $self = shift;
+  return $self->_class_url.'/'.($self->id or '');
+}
+
+sub _class_url{
+  my $self = shift;
+  my ($class) = lc(ref($self)) =~ /([^:]*$)/;
+  return $self->api_base.'/v1/'.$class.'s';
 }
 
 1;

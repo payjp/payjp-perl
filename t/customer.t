@@ -11,6 +11,9 @@ use Net::Payjp;
 my $payjp = Net::Payjp->new(api_key => 'api_key');
 my $customer = $payjp->customer;
 
+isa_ok($payjp->customer, 'Net::Payjp::Customer');
+can_ok($payjp->customer, qw(retrieve all create save delete card subscription));
+
 $Mock_resp->mock( content => sub { '{"id":"id1","metadata":{"hoge":"fuga"}}' } );
 $Mock_resp->mock( code => sub {200}  );
 $Mock_ua->mock( timeout => sub {} );
@@ -64,13 +67,6 @@ can_ok($payjp->customer, 'card');
 my $card = $customer->card('id2');
 is($card->cus_id, 'id2');
 is($customer->cus_id, 'id2');
-is($payjp->cus_id, undef);
-
-$payjp->cus_id('ignored');
-is($payjp->customer->card->cus_id, undef);
-
-$payjp->customer->card('ignored2');
-is($payjp->cus_id, 'ignored');
 
 isa_ok($card, 'Net::Payjp::Customer::Card');
 can_ok($card, 'create');

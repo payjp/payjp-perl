@@ -1,4 +1,4 @@
-package Net::Payjp::Transfer;
+package Net::Payjp::TenantTransfer;
 
 use strict;
 use warnings;
@@ -25,6 +25,11 @@ sub charges{
   my %p = @_;
 
   $self->_request(method => 'GET', url => $self->_instance_url.'/charges', param => \%p);
+}
+
+sub _class_url{
+  my $self = shift;
+  return $self->api_base.'/v1/tenant_transfers';
 }
 
 1;

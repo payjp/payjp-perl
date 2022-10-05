@@ -3,32 +3,31 @@
 use strict;
 use warnings;
 
+use Test::Mock::LWP;
+use Test::More tests => 10;
+
 use Net::Payjp;
-#use Test::More tests => 5;
-use Test::More skip_all => 'avoid real request';
 
-my $api_key = 'sk_test_c62fade9d045b54cd76d7036';
-my $payjp = Net::Payjp->new(api_key => $api_key);
-my $res;
-
+my $payjp = Net::Payjp->new(api_key => 'api_key');
 isa_ok($payjp->event, 'Net::Payjp::Event');
+can_ok($payjp->event, qw(retrieve all));
+ok(!$payjp->event->can('create'));
+ok(!$payjp->event->can('save'));
+ok(!$payjp->event->can('delete'));
 
+$Mock_resp->mock( content => sub { '{"data":[{"id":"res1"}]}' } );
+$Mock_resp->mock( code => sub {200}  );
+$Mock_ua->mock( timeout => sub {} );
+$Mock_ua->mock( default_header => sub {}  );
 
 #List
-can_ok($payjp->event, 'all');
-$res = $payjp->event->all(limit => 10, offset => 0);
-is($res->object, 'list', 'got a list object back');
-
-
-#Set evnt_id.
-$payjp->id($res->{data}->[0]->{id});
-
+my $res = $payjp->event->all(limit => 10);
+is($Mock_req->{new_args}[1], 'GET');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/events?limit=10');
 
 #Retrieve
-can_ok($payjp->event, 'retrieve');
-$res = $payjp->event->retrieve;
-is($res->object, 'event', 'got a event object back');
-
-
-
-
+my $event = $payjp->event;
+$res = $event->retrieve($res->{data}->[0]->{id});
+is($Mock_req->{new_args}[1], 'GET');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/events/res1');
+is($event->id, 'res1');

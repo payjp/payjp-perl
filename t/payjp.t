@@ -15,7 +15,6 @@ my $payjp = Net::Payjp->new(api_key => 'api_key1');
 is($payjp->{api_key}, 'api_key1', 'does not set by new()');
 is($payjp->{api_base}, 'https://api.pay.jp', 'does not set by new()');
 is($payjp->{id}, undef, 'does not set by new()');
-is($payjp->{cus_id}, undef, 'does not set by new()');
 
 is($payjp->{version}, $payjp->version, 'does not set by new()');
 is($payjp->{version}, $payjp->version('9.9.9'), 'sets by version()');
@@ -31,20 +30,15 @@ is($payjp->{api_base}, 'test', 'does not get api_base');
 is($payjp->id('id1'), 'id1', 'does not set by id()');
 is($payjp->{id}, 'id1', 'does not get id');
 
-is($payjp->cus_id('cus_id1'), 'cus_id1', 'does not set by id()');
-is($payjp->{cus_id}, 'cus_id1', 'does not get id');
-
 isa_ok($payjp->charge, 'Net::Payjp::Charge', 'is not object');
 is($payjp->charge->{api_key}, 'api_key2', 'does not get property');
 is($payjp->charge->{id}, 'id1', 'does not get property');
-is($payjp->charge->{cus_id}, undef, 'does not get property');
 is($payjp->charge->{api_base}, 'https://api.pay.jp', 'does not get property');
 is($payjp->charge(id => 'ignore')->{id}, 'id1', 'does not get property');
 
 isa_ok($payjp->customer, 'Net::Payjp::Customer');
 is($payjp->customer->{api_key}, 'api_key2');
 is($payjp->customer->{id}, 'id1');
-is($payjp->customer->{cus_id}, undef);
 is($payjp->customer(id => 'ignore')->{id}, 'id1');
 
 isa_ok($payjp->subscription, 'Net::Payjp::Subscription');
@@ -153,5 +147,10 @@ $Mock_resp->mock( message => sub {'message'} );
 my $e500 = $payjp->_request(url => 'e500');
 isa_ok($e500, 'Net::Payjp::Object');
 is_deeply($e500->error, {message=>'message', 'status_code'=>500});
+
+
+is($payjp->_class_url, 'test/v1/payjps');
+$payjp->id('id1');
+is($payjp->_instance_url, 'test/v1/payjps/id1');
 
 done_testing();
