@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::Mock::LWP;
-use Test::More tests => 15;
+use Test::More tests => 17;
 
 use Net::Payjp;
 
@@ -44,3 +44,9 @@ is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/charges/req1/reauth');
 $payjp->charge->tds_finish;
 is($Mock_req->{new_args}[1], 'POST');
 is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/charges/req1/tds_finish');
+
+#List
+$payjp->charge->all(limit => 3);
+is($Mock_req->{new_args}[1], 'GET');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/charges?limit=3');
+
