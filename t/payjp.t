@@ -153,4 +153,17 @@ is($payjp->_class_url, 'test/v1/payjps');
 $payjp->id('id1');
 is($payjp->_instance_url, 'test/v1/payjps/id1');
 
+# 1000 / 2 + 1000 / 2 * Math.random()
+$got = $payjp->_get_delay_sec(retry => 0, init_sec => 1, max_sec => 2);
+ok(0.5 <= $got);
+ok($got <= 1);
+## 1000 * 2 ^ 2 / 2 + ...
+$got = $payjp->_get_delay_sec(retry => 2, init_sec => 1, max_sec => 2);
+ok(1 <= $got);
+ok($got <= 2);
+# Calcurated range is 500-1000 but the larger end is limited to 600
+$got = $payjp->_get_delay_sec(retry => 0, init_sec => 1, max_sec => 0.6);
+ok(0.3 <= $got);
+ok($got <= 0.6);
+
 done_testing();

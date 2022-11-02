@@ -7,6 +7,8 @@ use LWP::UserAgent;
 use LWP::Protocol::https;
 use HTTP::Request::Common;
 use JSON;
+use List::Util qw/min/;
+use POSIX qw/floor/;
 
 use Net::Payjp::Account;
 use Net::Payjp::Charge;
@@ -65,6 +67,8 @@ This is required. You get this from your Payjp Account settings.
 
 our $VERSION = '0.2.0';
 our $API_BASE = 'https://api.pay.jp';
+our $INITIAL_DELAY = 2; # sec
+our $MAX_DELAY = 32; # sec
 
 sub new{
   my $self = shift;
@@ -75,10 +79,11 @@ sub _init{
   my $self = shift;
   my %p = @_;
   return(
-    api_key => $p{api_key},
-    id => $p{id},
-    version => $VERSION,
+    api_key  => $p{api_key},
+    id       => $p{id},
+    version  => $VERSION,
     api_base => $API_BASE,
+    max_retry    => $p{max_retry} || 0,
   );
 }
 
@@ -543,8 +548,9 @@ sub _request{
   my $self = shift;
   my %p = @_;
 
-  my $api_url = $p{url};
+  my $url = $p{url};
   my $method = $p{method} || 'GET';
+  my $retry = $p{retry} || 0;
 
   my $req;
   my $with_param;
@@ -556,12 +562,12 @@ sub _request{
     foreach my $k(keys %{$p{param}}){
       push(@param, "$k=".$p{param}->{$k});
     }
-    $api_url .= '?'.join("&", @param);
+    $url .= '?'.join("&", @param);
   }
   if($method eq 'POST' and $with_param){
-    $req = POST($api_url, $self->_api_param(param => $p{param}));
+    $req = POST($url, $self->_api_param(param => $p{param}));
   } else {
-    $req = new HTTP::Request $method => $api_url;
+    $req = new HTTP::Request $method => $url;
   }
 
   $req->authorization_basic($self->api_key, '');
@@ -585,7 +591,13 @@ sub _request{
     $self->id($obj->id) if $obj->id;
     return $obj;
   }
-  elsif($res->code =~ /^4/){
+  if($res->code == 429 and $self->{max_retry} > 0){
+    if ($retry < $self->{max_retry}) {
+      sleep($self->_get_delay_sec(retry => $retry, init_sec => $INITIAL_DELAY, max_sec => $MAX_DELAY));
+      return $self->_request(method => $method, url =>$url, param => $p{param}, retry => $retry + 1);
+    }
+  }
+  if($res->code =~ /^4/){
     return $self->_to_object(JSON->new->decode($res->content));
   }
   return $self->_to_object(
@@ -596,6 +608,16 @@ sub _request{
       }
     }
   );
+}
+
+sub _get_delay_sec {
+  my $self = shift;
+  my %p = @_;
+  my $retry = $p{retry}; # number
+  my $init_sec = $p{init_sec}; # number
+  my $max_sec = $p{max_sec}; # number
+
+  return min($init_sec * 2 ** $retry, $max_sec) / 2 * (1 + rand(1));
 }
 
 sub _to_object{
