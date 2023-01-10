@@ -3,160 +3,115 @@
 use strict;
 use warnings;
 
-use Net::Payjp;
-#use Test::More tests => 40;
-use Test::More skip_all => 'avoid real request';
+use Test::Mock::LWP;
+use Test::More;
 
-my $api_key = 'sk_test_c62fade9d045b54cd76d7036';
-my $payjp = Net::Payjp->new(api_key => $api_key);
-my $res;
+use Net::Payjp;
+
+my $payjp = Net::Payjp->new(api_key => 'api_key');
+my $customer = $payjp->customer;
 
 isa_ok($payjp->customer, 'Net::Payjp::Customer');
+can_ok($payjp->customer, qw(retrieve all create save delete card subscription));
 
+$Mock_resp->mock( content => sub { '{"id":"id1","metadata":{"hoge":"fuga"}}' } );
+$Mock_resp->mock( code => sub {200}  );
+$Mock_ua->mock( timeout => sub {} );
+$Mock_ua->mock( default_header => sub {}  );
 
+is($customer->id, undef);
 #Create
-can_ok($payjp->customer, 'create');
-$res = $payjp->customer->create(
+$Mock_req->mock( content => sub {
+    my $p = $_[1];
+    like($p, qr/description=test\+description/);
+    like($p, qr/.+[&].+/);
+    like($p, qr/metadata%5Bhoge%5D=fuga/);
+} );
+my $res = $customer->create(
     description    => 'test description.',
     'metadata[hoge]' => 'fuga'
 );
-is($res->object, 'customer', 'got a customer object back');
+is($Mock_req->{new_args}[1], 'POST');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/customers');
 is($res->metadata->{hoge}, 'fuga', 'got a customer metadata');
-
-
-#Set cus_id.
-$payjp->id($res->id);
-
+is($customer->id, 'id1');
 
 #Retrieve
-can_ok($payjp->customer, 'retrieve');
-$res = $payjp->customer->retrieve;
-is($res->object, 'customer', 'got a customer object back');
-is($res->metadata->{hoge}, 'fuga', 'got a customer metadata');
-
+$customer->retrieve;
+is($Mock_req->{new_args}[1], 'GET');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/customers/id1');
 
 #Update
-can_ok($payjp->customer, 'save');
-$res = $payjp->customer->save(
-    email            => 'test@test.jp',
-    'metadata[hoge]' => 'piyo'
-);
-is($res->object, 'customer', 'got a customer object back');
-is($res->metadata->{hoge}, 'piyo', 'got a customer metadata');
-
-
-#Update remove metadata
-can_ok($payjp->customer, 'save');
-$res = $payjp->customer->save(
-    email            => 'test@test.jp',
-    'metadata[hoge]' => ''
-);
-is($res->object, 'customer', 'got a customer object back');
-is_deeply($res->metadata, { }, 'got a customer metadata');
-
+$Mock_req->mock( content => sub {
+    my $p = $_[1];
+    is($p, 'email=test%40test.jp');
+} );
+$customer->save(email => 'test@test.jp');
+is($Mock_req->{new_args}[1], 'POST');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/customers/id1');
 
 #Delete
 can_ok($payjp->customer, 'delete');
-$res = $payjp->customer->delete;
-ok($res->deleted, 'delete was successful');
+$Mock_resp->mock( content => sub { '{"deleted":true}' } );
+ok($customer->delete->deleted);
+is($Mock_req->{new_args}[1], 'DELETE');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/customers/id1');
 
+#All
+$payjp->customer->all(limit => 2);
+is($Mock_req->{new_args}[1], 'GET');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/customers?limit=2');
 
-#List
-can_ok($payjp->customer, 'all');
-$res = $payjp->customer->all(limit => 2, offset => 0);
-is($res->object, 'list', 'got a list object back');
-
-
-#Create card
-$res = $payjp->customer->create(
-    description => 'test card.',
-);
+#Card
 can_ok($payjp->customer, 'card');
-my $card = $payjp->customer->card($res->id);
+my $card = $customer->card('id2');
+is($card->cus_id, 'id2');
+is($customer->cus_id, 'id2');
+
 isa_ok($card, 'Net::Payjp::Customer::Card');
 can_ok($card, 'create');
-my $res_card = $card->create(
-    number           => '4242424242424242',
-    exp_year         => '2020',
-    exp_month        => '02',
-    'metadata[hoge]' => 'fuga'
-);
-is($res_card->object, 'card', 'got a card object back');
-is($res_card->metadata->{hoge}, 'fuga', 'got a card metadata');
-
+$Mock_resp->mock( content => sub { '{"id":"card_id1"}' } );
+my $res_card = $card->create();
+is($Mock_req->{new_args}[1], 'POST');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/customers/id2/cards');
 
 #Retrieve card
 can_ok($card, 'retrieve');
-$res_card = $card->retrieve($res_card->id);
-is($res_card->object, 'card', 'got a card object back');
-is($res_card->metadata->{hoge}, 'fuga', 'got a card metadata');
-
+$card->retrieve($res_card->id);
+is($Mock_req->{new_args}[1], 'GET');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/customers/id2/cards/card_id1');
 
 #Update card
 can_ok($card, 'save');
-$res_card = $card->save(
-    exp_year         => '2026',
-    exp_month        => '05',
-    name             => 'test',
-    'metadata[hoge]' => 'piyo'
-);
-is($res_card->object, 'card', 'got a card object back');
-is($res_card->metadata->{hoge}, 'piyo', 'got a card metadata');
-
-
-#Update card remove metadata
-can_ok($card, 'save');
-$res_card = $card->save(
-    exp_year         => '2026',
-    exp_month        => '05',
-    name             => 'test',
-    'metadata[hoge]' => ''
-);
-is($res_card->object, 'card', 'got a card object back');
-is_deeply($res_card->metadata, { }, 'got a card metadata');
-
+$card->save();
+is($Mock_req->{new_args}[1], 'POST');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/customers/id2/cards/card_id1');
 
 #Delete card
 can_ok($card, 'delete');
-$res_card = $card->delete;
-ok($res_card->deleted, 'delete was successful');
-
+$card->delete;
+is($Mock_req->{new_args}[1], 'DELETE');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/customers/id2/cards/card_id1');
 
 #List card
-$card->create(
-    number    => '4242424242424242',
-    exp_year  => '2020',
-    exp_month => '02'
-);
 can_ok($card, 'all');
-$res_card = $card->all(limit => 2, offset => 0);
-is($res_card->object, 'list', 'got a list object back');
-
+$card->all(offset => 0);
+is($Mock_req->{new_args}[1], 'GET');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/customers/id2/cards?offset=0');
 
 #Retrieve subscription
-my $pln_res = $payjp->plan->create(
-    amount     => 500,
-    currency   => 'jpy',
-    interval   => 'month',
-    trial_days => 30,
-);
-
-my $res_subscription = $payjp->subscription->create(
-    customer => $res->id,
-    plan     => $pln_res->id
-);
-
 can_ok($payjp->customer, 'subscription');
 my $subscription = $payjp->customer->subscription($res->id);
+is($subscription->cus_id, 'id1');
 can_ok($subscription, 'retrieve');
-my $res_sub = $subscription->retrieve($res_subscription->id);
-is($res_sub->object, 'subscription', 'got a subscription object back');
-
+$subscription->retrieve('sub_id1');
+is($Mock_req->{new_args}[1], 'GET');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/customers/id1/subscriptions/sub_id1');
 
 #List subscription
 can_ok($subscription, 'all');
-$res_sub = $subscription->all(limit => 5, offset => 0);
-is($res_card->object, 'list', 'got a list object back');
+$subscription->all(offset => 0);
+is($Mock_req->{new_args}[1], 'GET');
+is($Mock_req->{new_args}[2], 'https://api.pay.jp/v1/customers/id1/subscriptions?offset=0');
 
-
-
+done_testing();
