@@ -67,8 +67,6 @@ This is required. You get this from your Payjp Account settings.
 
 our $VERSION = '0.2.0';
 our $API_BASE = 'https://api.pay.jp';
-our $INITIAL_DELAY = 2; # sec
-our $MAX_DELAY = 32; # sec
 
 sub new{
   my $self = shift;
@@ -81,9 +79,10 @@ sub _init{
   return(
     api_key  => $p{api_key},
     id       => $p{id},
-    version  => $VERSION,
     api_base => $API_BASE,
-    max_retry    => $p{max_retry} || 0,
+    max_retry     => $p{max_retry} || 0,
+    initial_delay => $p{initial_delay} || 2, # sec
+    max_delay     => $p{max_delay} || 32,    # sec
   );
 }
 
@@ -91,12 +90,6 @@ sub api_key{
   my $self = shift;
   $self->{api_key} = shift if @_;
   return $self->{api_key};
-}
-
-sub version{
-  my $self = shift;
-  $self->{version} = shift if @_;
-  return $self->{version};
 }
 
 sub api_base{
@@ -219,7 +212,7 @@ $res = $payjp->customer->all(limit => 2, offset => 1);
 
 sub charge{
   my $self = shift;
-  return Net::Payjp::Charge->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Charge->new(%$self);
 }
 
 =head1 Cutomer card Methods
@@ -298,7 +291,7 @@ $subscription->all(limit => 1, offset => 0);
 
 sub customer{
   my $self = shift;
-  return Net::Payjp::Customer->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Customer->new(%$self);
 }
 
 =head1 Plan Methods
@@ -355,7 +348,7 @@ L<https://pay.jp/docs/api/#プランリストを取得>
 
 sub plan{
   my $self = shift;
-  return Net::Payjp::Plan->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Plan->new(%$self);
 }
 
 =head1 Subscription Methods
@@ -436,7 +429,7 @@ L<https://pay.jp/docs/api/#定期課金のリストを取得>
 
 sub subscription{
   my $self = shift;
-  return Net::Payjp::Subscription->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Subscription->new(%$self);
 }
 
 =head1 Token Methods
@@ -453,7 +446,7 @@ $payjp->token->retrieve('tok_eff34b780cbebd61e87f09ecc9c6');
 
 sub token{
   my $self = shift;
-  return Net::Payjp::Token->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Token->new(%$self);
 }
 
 =head1 Transfer Methods
@@ -489,7 +482,7 @@ L<https://pay.jp/docs/api/#入金の内訳を取得>
 
 sub transfer{
   my $self = shift;
-  return Net::Payjp::Transfer->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Transfer->new(%$self);
 }
 
 =head1 Event Methods
@@ -514,7 +507,7 @@ $payjp->event->all(limit => 10, offset => 0);
 
 sub event{
   my $self = shift;
-  return Net::Payjp::Event->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Event->new(%$self);
 }
 
 =head1 Account Methods
@@ -531,17 +524,17 @@ L<https://pay.jp/docs/api/#アカウント情報を取得>
 
 sub account{
   my $self = shift;
-  return Net::Payjp::Account->new(api_key => $self->api_key);
+  return Net::Payjp::Account->new(%$self);
 }
 
 sub tenant{
   my $self = shift;
-  return Net::Payjp::Tenant->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::Tenant->new(%$self);
 }
 
 sub tenant_transfer{
   my $self = shift;
-  return Net::Payjp::TenantTransfer->new(api_key => $self->api_key, id => $self->id);
+  return Net::Payjp::TenantTransfer->new(%$self);
 }
 
 sub _request{
@@ -574,37 +567,38 @@ sub _request{
   my $ua = LWP::UserAgent->new();
   $ua->timeout(30);
   my $client = {
-    'bindings_version' => $self->version,
+    'bindings_version' => $VERSION,
     'lang' => 'perl',
     'lang_version' => $],
     'publisher' => 'payjp',
     'uname' => $^O
   };
   $ua->default_header(
-    'User-Agent' => 'Payjp/v1 PerlBindings/'.$self->version,
+    'User-Agent' => 'Payjp/v1 PerlBindings/'.$VERSION,
     'X-Payjp-Client-User-Agent' => JSON->new->encode($client),
   );
 
   my $res = $ua->request($req);
-  if($res->code == 200){
+  my $code = $res->code;
+  if($code == 200){
     my $obj = $self->_to_object(JSON->new->decode($res->content));
     $self->id($obj->id) if $obj->id;
     return $obj;
-  }
-  if($res->code == 429 and $self->{max_retry} > 0){
-    if ($retry < $self->{max_retry}) {
-      sleep($self->_get_delay_sec(retry => $retry, init_sec => $INITIAL_DELAY, max_sec => $MAX_DELAY));
-      return $self->_request(method => $method, url =>$url, param => $p{param}, retry => $retry + 1);
-    }
-  }
-  if($res->code =~ /^4/){
+  } elsif($code == 429 and $retry < $self->{max_retry}){
+    sleep($self->_get_delay_sec(
+      retry => $retry,
+      init_sec => $self->{initial_delay},
+      max_sec => $self->{max_delay}
+    ));
+    return $self->_request(method => $method, url =>$url, param => $p{param}, retry => $retry + 1);
+  } elsif($code =~ /^4/){
     return $self->_to_object(JSON->new->decode($res->content));
   }
   return $self->_to_object(
     {
       error => {
         message => $res->message,
-        status_code => $res->code,
+        status_code => $code,
       }
     }
   );
