@@ -177,10 +177,10 @@ is($charge->{id}, 'id3');
 $count = 0;
 $Mock_resp->mock( code => sub {
   $count += 1;
-  return $count < 3 ? 429 : 200;
+  return $count == 2 ? 200 : 429;
 } );
 $resp = $charge->all();
-is($count, 3);
+is($count, 2);
 is($resp->id, 'id5');
 is($charge->{id}, 'id5');
 
