@@ -19,8 +19,10 @@ t/account.t
 t/charge.t
 t/customer.t
 t/event.t
-t/load.t
+t/payjp.t
 t/plan.t
 t/subscription.t
+t/tenant.t
+t/tenant_transfer.t
 t/token.t
 t/transfer.t
