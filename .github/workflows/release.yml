@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: shogo82148/actions-setup-perl@v1
         with:
-          perl-version: 5.30
+          perl-version: '5.30'
       - run: cpanm --installdeps .
       - name: build for upload
         run: |
