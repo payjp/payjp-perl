@@ -153,18 +153,36 @@ $Mock_resp->mock(content => sub {'{"id":"id5"}'});
 $payjp->_request(url => 'test');
 is($count, 1);
 
-## Check rate limit response with retry & if child class inherited retry params
-my $charge = Net::Payjp->new(api_key => 'api_key2', max_retry => 2, id => 'id3')->charge;
+## Check rate limit response with retry
+my $charge = Net::Payjp->new(
+  api_key => 'api_key2',
+  max_retry => 2,
+  initial_delay => 3,
+  max_delay => 4,
+  id => 'id3'
+)->charge;
 is($charge->{max_retry}, 2, 'does not set by new()');
-is($charge->{initial_delay}, 2, 'does not set by new()');
-is($charge->{max_delay}, 32, 'does not set by new()');
+is($charge->{initial_delay}, 3, 'does not set by new()');
+is($charge->{max_delay}, 4, 'does not set by new()');
 
+### ケース1：リトライ2回（合計3回）設定 → 全て400系（データ更新されず）
 $count = 0;
 $resp = $charge->all();
 isa_ok($resp, 'Net::Payjp::Object');
 is($count, 3);
 is($resp->id, 'id5');
-is($charge->{id}, 'id3'); # not setting error value
+is($charge->{id}, 'id3');
+
+### ケース2：リトライ2回（合計3回）設定 → 3回目成功（データ更新される）
+$count = 0;
+$Mock_resp->mock( code => sub {
+  $count += 1;
+  return $count < 3 ? 429 : 200;
+} );
+$resp = $charge->all();
+is($count, 3);
+is($resp->id, 'id5');
+is($charge->{id}, 'id5');
 
 ## Check 500 error response
 $Mock_resp->mock( code => sub {500} );

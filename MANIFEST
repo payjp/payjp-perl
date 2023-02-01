@@ -5,7 +5,6 @@ lib/Net/Payjp/Customer.pm
 lib/Net/Payjp/Customer/Card.pm
 lib/Net/Payjp/Customer/Subscription.pm
 lib/Net/Payjp/Event.pm
-lib/Net/Payjp/External.pm
 lib/Net/Payjp/Object.pm
 lib/Net/Payjp/Plan.pm
 lib/Net/Payjp/Subscription.pm

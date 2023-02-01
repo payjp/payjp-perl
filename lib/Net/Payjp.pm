@@ -32,7 +32,6 @@ use Net::Payjp::Object;
    card => 'token_id_by_Checkout_or_payjp.js',
    amount => 3500,
    currency => 'jpy',
-   description => 'test charge',
  );
  if(my $e = $res->error){
    print "Error;
@@ -67,6 +66,8 @@ This is required. You get this from your Payjp Account settings.
 
 our $VERSION = '0.2.0';
 our $API_BASE = 'https://api.pay.jp';
+our $INITIAL_DELAY_SEC = 2;
+our $MAX_DELAY_SEC = 32;
 
 sub new{
   my $self = shift;
@@ -81,8 +82,8 @@ sub _init{
     id       => $p{id},
     api_base => $API_BASE,
     max_retry     => $p{max_retry} || 0,
-    initial_delay => $p{initial_delay} || 2, # sec
-    max_delay     => $p{max_delay} || 32,    # sec
+    initial_delay => $p{initial_delay} || $INITIAL_DELAY_SEC,
+    max_delay     => $p{max_delay} || $MAX_DELAY_SEC,
   );
 }
 
