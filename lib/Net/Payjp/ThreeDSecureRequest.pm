@@ -1,4 +1,4 @@
-package Net::Payjp::Token;
+package Net::Payjp::ThreeDSecureRequest;
 
 use strict;
 use warnings;
@@ -20,10 +20,15 @@ sub retrieve{
     $self->_request(method => 'GET', url => $self->_instance_url);
 }
 
-sub tds_finish{
-    my $self = shift;
+sub all{
+  my $self = shift;
+  my %p = @_;
 
-    $self->_request(method => 'POST', url => $self->_instance_url.'/tds_finish');
+  $self->_request(method => 'GET', url => $self->_class_url, param => \%p);
 }
 
+sub _class_url{
+  my $self = shift;
+  return $self->api_base.'/v1/three_d_secure_requests';
+}
 1;

@@ -24,6 +24,7 @@ use Net::Payjp::Statement;
 use Net::Payjp::Balance;
 use Net::Payjp::Term;
 use Net::Payjp::Object;
+use Net::Payjp::ThreeDSecureRequest;
 
 # ABSTRACT: API client for pay.jp
 
@@ -487,6 +488,41 @@ L<https://pay.jp/docs/api/#入金の内訳を取得>
 sub transfer{
   my $self = shift;
   return Net::Payjp::Transfer->new(%$self);
+}
+
+=head1 ThreeDSecureRequest Methods
+
+=head2 create
+
+Create a three_d_secure_request
+
+L<https://pay.jp/docs/api/#顧客を作成>
+
+ $payjp->three_d_secure_request->create(
+   "resource_id" => "car_xxxx",
+ );
+
+=head2 retrieve
+
+Retrieve a three_d_secure_request
+
+L<https://pay.jp/docs/api/#顧客情報を取得>
+
+ $payjp->three_d_secure_request->retrieve('tdsr_xxxx');
+
+=head2 all
+
+Returns the three_d_secure_request list
+
+L<https://pay.jp/docs/api/#顧客リストを取得>
+
+$res = $payjp->three_d_secure_request->all(limit => 2, offset => 1);
+
+=cut
+
+sub three_d_secure_request{
+  my $self = shift;
+  return Net::Payjp::ThreeDSecureRequest->new(%$self);
 }
 
 =head1 Event Methods
