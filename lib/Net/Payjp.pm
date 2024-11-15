@@ -68,7 +68,7 @@ This is required. You get this from your Payjp Account settings.
 
 =cut
 
-our $VERSION = '0.3.1';
+our $VERSION = '0.4.0';
 our $API_BASE = 'https://api.pay.jp';
 our $INITIAL_DELAY_SEC = 2;
 our $MAX_DELAY_SEC = 32;
